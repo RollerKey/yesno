@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evet/Hayır Dil Terapisi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 5px;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .question-area {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .question-text {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .sound-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4834d4, #686de0);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.2);
+            border: 4px solid transparent;
+            border-radius: 20px;
+            padding: 30px 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 150px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .option.correct {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.4);
+            animation: correctPulse 1s ease-in-out;
+        }
+
+        .option.wrong {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.4);
+            animation: wrongShake 0.5s ease-in-out;
+        }
+
+        .option.green-light {
+            background: rgba(46, 204, 113, 0.6);
+            border-color: #2ecc71;
+            animation: greenLight 2s ease-in-out;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes greenLight {
+            0% { background: rgba(46, 204, 113, 0.3); }
+            50% { background: rgba(46, 204, 113, 0.8); }
+            100% { background: rgba(46, 204, 113, 0.3); }
+        }
+
+        .option-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        .feedback.wrong {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .start-screen p {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .question-counter {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .auto-progress {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅❌ Evet/Hayır Dil Terapisi</h1>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <span class="stat-number" id="currentQuestion">0</span>
+                <span>Soru No</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="correctAnswers">0</span>
+                <span>Doğru</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="wrongAnswers">0</span>
+                <span>Yanlış</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="successRate">0%</span>
+                <span>Başarı Oranı</span>
+            </div>
+        </div>
+
+        <div id="startScreen" class="start-screen">
+            <h2>Hoş Geldiniz!</h2>
+            <p>Bu uygulamada sorular sadece sesli olarak sorulacak. Her soruyu dikkatle dinleyin ve EVET veya HAYIR ile cevap verin. 20 sorudan 10'u EVET, 10'u HAYIR cevaplı!</p>
+            <button class="btn btn-primary" onclick="startApp()">Başlayalım!</button>
+        </div>
+
+        <div id="gameArea" class="hidden">
+            <div class="question-area" id="questionArea">
+                <div class="question-counter" id="questionCounter">1/20</div>
+                <div class="sound-icon">🔊</div>
+                <div class="question-text" id="questionText">Soruyu dinlemek için butona basın</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="playQuestion()">🔊 Soruyu Dinle</button>
+                <button class="btn btn-secondary" onclick="nextQuestion()" id="nextBtn" style="display: none;">➡️ Sonraki Soru</button>
+            </div>
+
+            <div class="options" id="optionsContainer">
+                <div class="option" onclick="selectOption(true)">
+                    <div class="option-icon">✅</div>
+                    <div>EVET</div>
+                </div>
+                <div class="option" onclick="selectOption(false)">
+                    <div class="option-icon">❌</div>
+                    <div>HAYIR</div>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback hidden"></div>
+            <div id="autoProgress" class="auto-progress hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // 20 Questions: 10 YES, 10 NO answers
+        const questions = [
+            // EVET cevaplı sorular (10 adet)
+            { text: "Buz soğuk mudur?", speech: "Buz soğuk mudur?", correct: true },
+            { text: "Güneş ışık verir mi?", speech: "Güneş ışık verir mi?", correct: true },
+            { text: "Balık suda yaşar mı?", speech: "Balık suda yaşar mı?", correct: true },
+            { text: "Ateş sıcak mıdır?", speech: "Ateş sıcak mıdır?", correct: true },
+            { text: "Kar beyaz mıdır?", speech: "Kar beyaz mıdır?", correct: true },
+            { text: "Kuşlar uçabilir mi?", speech: "Kuşlar uçabilir mi?", correct: true },
+            { text: "Su içmek sağlıklı mıdır?", speech: "Su içmek sağlıklı mıdır?", correct: true },
+            { text: "Gece karanlık mıdır?", speech: "Gece karanlık mıdır?", correct: true },
+            { text: "Elma bir meyve midir?", speech: "Elma bir meyve midir?", correct: true },
+            { text: "Köpekler havlar mı?", speech: "Köpekler havlar mı?", correct: true },
+            
+            // HAYIR cevaplı sorular (10 adet)
+            { text: "Kediler uçabilir mi?", speech: "Kediler uçabilir mi?", correct: false },
+            { text: "Balıklar karada yaşar mı?", speech: "Balıklar karada yaşar mı?", correct: false },
+            { text: "Taş yenilir mi?", speech: "Taş yenilir mi?", correct: false },
+            { text: "Gece güneş parlar mı?", speech: "Gece güneş parlar mı?", correct: false },
+            { text: "Arabalar uçar mı?", speech: "Arabalar uçar mı?", correct: false },
+            { text: "Ayı küçük bir hayvan mıdır?", speech: "Ayı küçük bir hayvan mıdır?", correct: false },
+            { text: "Buz sıcak mıdır?", speech: "Buz sıcak mıdır?", correct: false },
+            { text: "Ağaçlar yürür mü?", speech: "Ağaçlar yürür mü?", correct: false },
+            { text: "Su kuru mudur?", speech: "Su kuru mudur?", correct: false },
+            { text: "Karınca dev bir hayvan mıdır?", speech: "Karınca dev bir hayvan mıdır?", correct: false }
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let currentSpeech = null;
+        let wrongAttempts = 0;
+        let isAnswered = false;
+
+        function startApp() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameArea').classList.remove('hidden');
+            
+            // Shuffle questions to randomize order
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showFinalResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1}/20`;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            // Reset states
+            isAnswered = false;
+            wrongAttempts = 0;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('autoProgress').classList.add('hidden');
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // Reset option styles
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('correct', 'wrong', 'green-light');
+            });
+
+            // Auto-play question after 1 second
+            setTimeout(() => {
+                playQuestion();
+            }, 1000);
+        }
+
+        function playQuestion() {
+            const question = questions[currentQuestionIndex];
+            
+            // Stop current speech if playing
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+            
+            // Create speech
+            currentSpeech = new SpeechSynthesisUtterance(question.speech);
+            currentSpeech.lang = 'tr-TR';
+            currentSpeech.rate = 0.8;
+            currentSpeech.pitch = 1.1;
+            currentSpeech.volume = 1.0;
+            
+            // Play speech
+            speechSynthesis.speak(currentSpeech);
+        }
+
+        function selectOption(selectedAnswer) {
+            if (isAnswered) return;
+
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+            const autoProgress = document.getElementById('autoProgress');
+            
+            const yesOption = options[0]; // EVET
+            const noOption = options[1];  // HAYIR
+            const selectedOption = selectedAnswer ? yesOption : noOption;
+            const correctOption = question.correct ? yesOption : noOption;
+
+            if (selectedAnswer === question.correct) {
+                // Correct answer
+                correctAnswers++;
+                selectedOption.classList.add('correct');
+                feedback.textContent = '🎉 Harika! Doğru cevap!';
+                feedback.className = 'feedback correct';
+                isAnswered = true;
+
+                // Play success sound
+                setTimeout(() => {
+                    const successSpeech = new SpeechSynthesisUtterance('Harika! Doğru cevap!');
+                    successSpeech.lang = 'tr-TR';
+                    successSpeech.rate = 1.0;
+                    successSpeech.pitch = 1.2;
+                    speechSynthesis.speak(successSpeech);
+                }, 200);
+
+                // Auto progress after 2 seconds
+                autoProgress.textContent = 'Sonraki soruya geçiliyor...';
+                autoProgress.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                }, 2000);
+
+            } else {
+                // Wrong answer
+                wrongAttempts++;
+                selectedOption.classList.add('wrong');
+
+                if (wrongAttempts === 1) {
+                    // First wrong attempt - show green light on correct answer
+                    correctOption.classList.add('green-light');
+                    feedback.textContent = '❌ Yanlış! Doğru cevap yeşil ışıkla gösterildi.';
+                    feedback.className = 'feedback wrong';
+
+                    // Play try again sound
+                    setTimeout(() => {
+                        const wrongSpeech = new SpeechSynthesisUtterance('Yanlış cevap. Doğru cevap yeşil ışıkla gösterildi. Tekrar dene.');
+                        wrongSpeech.lang = 'tr-TR';
+                        wrongSpeech.rate = 1.0;
+                        wrongSpeech.pitch = 0.9;
+                        speechSynthesis.speak(wrongSpeech);
+                    }, 200);
+
+                } else {
+                    // Second wrong attempt - move to next question
+                    wrongAnswers++;
+                    correctOption.classList.add('correct');
+                    feedback.textContent = '❌ İki kez yanlış. Doğru cevap gösterildi.';
+                    feedback.className = 'feedback wrong';
+                    isAnswered = true;
+
+                    // Play move on sound
+                    setTimeout(() => {
+                        const moveSpeech = new SpeechSynthesisUtterance('İki kez yanlış cevap verdin. Sonraki soruya geçiyoruz.');
+                        moveSpeech.lang = 'tr-TR';
+                        moveSpeech.rate = 1.0;
+                        moveSpeech.pitch = 0.9;
+                        speechSynthesis.speak(moveSpeech);
+                    }, 200);
+
+                    // Auto progress after 3 seconds
+                    autoProgress.textContent = 'Sonraki soruya geçiliyor...';
+                    autoProgress.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    }, 3000);
+                }
+            }
+            
+            feedback.classList.remove('hidden');
+            updateStats();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+            document.getElementById('wrongAnswers').textContent = wrongAnswers;
+            
+            const totalAnswered = correctAnswers + wrongAnswers;
+            const successRate = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function showFinalResults() {
+            const container = document.querySelector('.container');
+            const totalAnswered = correctAnswers + wrongAnswers;
+            const successRate = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+            
+            container.innerHTML = `
+                <h1>🎊 Test Tamamlandı!</h1>
+                <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.15); border-radius: 20px; margin: 30px 0;">
+                    <h2 style="margin-bottom: 30px;">📊 Sonuçlarınız</h2>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-bottom: 30px;">
+                        <div style="background: rgba(46,204,113,0.3); padding: 20px; border-radius: 15px; margin: 10px; min-width: 150px;">
+                            <div style="font-size: 3em; color: #2ecc71;">✅</div>
+                            <div style="font-size: 2em; font-weight: bold;">${correctAnswers}</div>
+                            <div>DOĞRU</div>
+                        </div>
+                        <div style="background: rgba(231,76,60,0.3); padding: 20px; border-radius: 15px; margin: 10px; min-width: 150px;">
+                            <div style="font-size: 3em; color: #e74c3c;">❌</div>
+                            <div style="font-size: 2em; font-weight: bold;">${wrongAnswers}</div>
+                            <div>YANLIŞ</div>
+                        </div>
+                        <div style="background: rgba(255,193,7,0.3); padding: 20px; border-radius: 15px; margin: 10px; min-width: 150px;">
+                            <div style="font-size: 3em; color: #ffc107;">📈</div>
+                            <div style="font-size: 2em; font-weight: bold;">${successRate}%</div>
+                            <div>BAŞARI ORANI</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 1.5em; margin: 20px 0;">
+                        ${successRate >= 80 ? '🏆 Mükemmel performans!' : 
+                          successRate >= 60 ? '👍 İyi iş çıkardın!' : 
+                          '💪 Daha fazla pratik yapalım!'}
+                    </div>
+                    <button class="btn btn-primary" onclick="location.reload()" style="font-size: 1.2em; padding: 15px 30px;">
+                        🔄 Tekrar Başla
+                    </button>
+                </div>
+            `;
+
+            // Final speech
+            setTimeout(() => {
+                const finalSpeech = new SpeechSynthesisUtterance(`Test tamamlandı! ${correctAnswers} doğru, ${wrongAnswers} yanlış cevap verdin. Başarı oranın yüzde ${successRate}.`);
+                finalSpeech.lang = 'tr-TR';
+                finalSpeech.rate = 0.9;
+                finalSpeech.pitch = 1.1;
+                speechSynthesis.speak(finalSpeech);
+            }, 1000);
+        }
+
+        // Initialize speech synthesis
+        window.addEventListener('load', () => {
+            // Warm up speech synthesis
+            const testSpeech = new SpeechSynthesisUtterance(' ');
+            testSpeech.volume = 0;
+            speechSynthesis.speak(testSpeech);
+        });
+    </script>
+</body>
+</html>
