@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evet/Hayır Sorular</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.5s ease;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .correct { color: #4CAF50; }
+        .incorrect { color: #f44336; }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .question-image {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 100px;
+            background: #fff;
+            border: 5px solid #ddd;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .listen-btn {
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .listen-btn:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .listen-btn:active {
+            transform: translateY(0);
+        }
+
+        .answer-btn {
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .yes-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .no-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+        }
+
+        .answer-btn:active {
+            transform: translateY(0);
+        }
+
+        .correct-bg {
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%) !important;
+        }
+
+        .incorrect-bg {
+            background: linear-gradient(135deg, #f44336 0%, #FF5722 100%) !important;
+        }
+
+        .potato-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            z-index: 1000;
+            animation: potatoExplode 2s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes potatoExplode {
+            0% {
+                font-size: 50px;
+                opacity: 1;
+            }
+            50% {
+                font-size: 100px;
+                opacity: 0.8;
+            }
+            100% {
+                font-size: 200px;
+                opacity: 0;
+            }
+        }
+
+        .final-score {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .final-score h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="score-container">
+            <div class="score-item correct">
+                ✅ Doğru: <span id="correctCount">0</span>
+            </div>
+            <div class="score-item">
+                📊 Soru: <span id="currentQuestion">1</span>/20
+            </div>
+            <div class="score-item incorrect">
+                ❌ Yanlış: <span id="incorrectCount">0</span>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="gameArea">
+            <div class="question-image" id="questionImage">🦅</div>
+            
+            <div class="listen-again-container" style="margin: 20px 0;">
+                <button class="listen-btn" id="listenBtn" onclick="repeatQuestion()">🔊 Tekrar Dinle</button>
+            </div>
+            
+            <div class="answer-buttons">
+                <button class="answer-btn yes-btn" id="yesBtn" onclick="answerQuestion(true)">EVET</button>
+                <button class="answer-btn no-btn" id="noBtn" onclick="answerQuestion(false)">HAYIR</button>
+            </div>
+        </div>
+
+        <div id="finalScore" class="final-score hidden">
+            <h2>🎉 Tebrikler! Oyun Bitti!</h2>
+            <p>Toplam Doğru: <span id="finalCorrect">0</span>/20</p>
+            <p>Toplam Yanlış: <span id="finalIncorrect">0</span>/20</p>
+            <button class="restart-btn" onclick="restartGame()">Yeniden Başla</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { image: "🦅", question: "Kuşlar uçar mı?", answer: true, text: "Kuşlar uçar mı?" },
+            { image: "🐠", question: "Balıklar suda yaşar mı?", answer: true, text: "Balıklar suda yaşar mı?" },
+            { image: "🌞", question: "Güneş gece doğar mı?", answer: false, text: "Güneş gece doğar mı?" },
+            { image: "🌙", question: "Ay gece görünür mü?", answer: true, text: "Ay gece görünür mü?" },
+            { image: "🐶", question: "Köpekler havlar mı?", answer: true, text: "Köpekler havlar mı?" },
+            { image: "🐱", question: "Kediler miyavlar mı?", answer: true, text: "Kediler miyavlar mı?" },
+            { image: "🌳", question: "Ağaçlar yürür mü?", answer: false, text: "Ağaçlar yürür mü?" },
+            { image: "🚗", question: "Arabalar uçar mı?", answer: false, text: "Arabalar uçar mı?" },
+            { image: "🍎", question: "Elma bir meyve midir?", answer: true, text: "Elma bir meyve midir?" },
+            { image: "🥕", question: "Havuç bir sebze midir?", answer: true, text: "Havuç bir sebze midir?" },
+            { image: "❄️", question: "Kar sıcak mıdır?", answer: false, text: "Kar sıcak mıdır?" },
+            { image: "🔥", question: "Ateş soğuk mudur?", answer: false, text: "Ateş soğuk mudur?" },
+            { image: "🌊", question: "Deniz tuzlu mudur?", answer: true, text: "Deniz tuzlu mudur?" },
+            { image: "🐘", question: "Filler küçük hayvanlar mıdır?", answer: false, text: "Filler küçük hayvanlar mıdır?" },
+            { image: "🐭", question: "Fareler büyük hayvanlar mıdır?", answer: false, text: "Fareler büyük hayvanlar mıdır?" },
+            { image: "🌈", question: "Gökkuşağı renkli midir?", answer: true, text: "Gökkuşağı renkli midir?" },
+            { image: "⭐", question: "Yıldızlar gece görünür mü?", answer: true, text: "Yıldızlar gece görünür mü?" },
+            { image: "🍌", question: "Muz sarı renkli midir?", answer: true, text: "Muz sarı renkli midir?" },
+            { image: "🎈", question: "Balonlar ağır mıdır?", answer: false, text: "Balonlar ağır mıdır?" },
+            { image: "🧊", question: "Buz sıcak mıdır?", answer: false, text: "Buz sıcak mıdır?" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let shuffledQuestions = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function shuffleAnswerButtons() {
+            const yesBtn = document.getElementById('yesBtn');
+            const noBtn = document.getElementById('noBtn');
+            const container = document.querySelector('.answer-buttons');
+            
+            if (Math.random() < 0.5) {
+                container.appendChild(noBtn);
+                container.appendChild(yesBtn);
+            } else {
+                container.appendChild(yesBtn);
+                container.appendChild(noBtn);
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'tr-TR';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const question = shuffledQuestions[currentQuestionIndex];
+            document.getElementById('questionImage').textContent = question.image;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            // Progress bar güncelle
+            const progress = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Cevap butonlarını rastgele yerleştir
+            shuffleAnswerButtons();
+
+            // Soruyu seslendir
+            setTimeout(() => {
+                speakText(question.text);
+            }, 500);
+        }
+
+        function repeatQuestion() {
+            const question = shuffledQuestions[currentQuestionIndex];
+            speakText(question.text);
+        }
+
+        function answerQuestion(userAnswer) {
+            const question = shuffledQuestions[currentQuestionIndex];
+            const isCorrect = userAnswer === question.answer;
+            const body = document.body;
+
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('correctCount').textContent = correctCount;
+                body.className = 'correct-bg';
+                
+                // Patates animasyonu
+                const potato = document.createElement('div');
+                potato.className = 'potato-animation';
+                potato.textContent = '🥔';
+                document.body.appendChild(potato);
+                
+                setTimeout(() => {
+                    document.body.removeChild(potato);
+                }, 2000);
+                
+            } else {
+                incorrectCount++;
+                document.getElementById('incorrectCount').textContent = incorrectCount;
+                body.className = 'incorrect-bg';
+            }
+
+            // 2 saniye sonra bir sonraki soruya geç
+            setTimeout(() => {
+                body.className = '';
+                currentQuestionIndex++;
+                displayQuestion();
+            }, 2000);
+        }
+
+        function endGame() {
+            document.getElementById('gameArea').classList.add('hidden');
+            document.getElementById('finalScore').classList.remove('hidden');
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalIncorrect').textContent = incorrectCount;
+            
+            // Final skorunu seslendir
+            const finalText = `Oyun bitti! ${correctCount} doğru, ${incorrectCount} yanlış cevap verdiniz.`;
+            speakText(finalText);
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            
+            document.getElementById('correctCount').textContent = '0';
+            document.getElementById('incorrectCount').textContent = '0';
+            document.getElementById('progressFill').style.width = '0%';
+            
+            document.getElementById('finalScore').classList.add('hidden');
+            document.getElementById('gameArea').classList.remove('hidden');
+            
+            initGame();
+        }
+
+        function initGame() {
+            shuffledQuestions = shuffleArray([...questions]);
+            displayQuestion();
+        }
+
+        // Oyunu başlat
+        initGame();
+    </script>
+</body>
+</html>
